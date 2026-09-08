@@ -1,0 +1,319 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Checklist SOP Harian — Area Bar</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Roboto, sans-serif;
+        }
+
+        body {
+            background-color: #f4f6f8;
+            padding: 20px;
+            color: #2d3748;
+        }
+
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+            background: #ffffff;
+            border-radius: 12px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+            padding: 30px;
+        }
+
+        h1 {
+            text-align: center;
+            color: #1a202c;
+            margin-bottom: 8px;
+            font-size: 22px;
+        }
+
+        .tanggal {
+            text-align: center;
+            color: #718096;
+            margin-bottom: 25px;
+            font-size: 15px;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: separate;
+            border-spacing: 0;
+            margin-bottom: 20px;
+        }
+
+        th, td {
+            padding: 12px 8px;
+            text-align: center;
+            border-bottom: 1px solid #e2e8f0;
+            font-size: 14px;
+        }
+
+        th {
+            background-color: #2b6cb0;
+            color: white;
+            font-weight: 600;
+        }
+
+        th:first-child, td:first-child {
+            text-align: center;
+            width: 45px;
+        }
+
+        th:nth-child(2), td:nth-child(2) {
+            text-align: left;
+            width: 48%;
+        }
+
+        tr:hover {
+            background-color: #f7fafc;
+        }
+
+        .check-box {
+            width: 28px;
+            height: 28px;
+            border: 2px solid #cbd5e0;
+            border-radius: 6px;
+            margin: 0 auto;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.25s ease;
+            background-color: white;
+        }
+
+        .check-box.checked {
+            background-color: #38a169;
+            border-color: #38a169;
+        }
+
+        .check-box.checked::after {
+            content: "✓";
+            color: white;
+            font-weight: bold;
+            font-size: 18px;
+        }
+
+        .input-paraf {
+            width: 90%;
+            padding: 6px;
+            border: 1px solid #e2e8f0;
+            border-radius: 4px;
+            font-size: 13px;
+            text-align: center;
+        }
+
+        .keterangan {
+            width: 95%;
+            padding: 6px;
+            border: 1px solid #e2e8f0;
+            border-radius: 4px;
+            font-size: 13px;
+        }
+
+        .tombol-area {
+            text-align: center;
+            margin-top: 25px;
+        }
+
+        button {
+            padding: 12px 28px;
+            font-size: 15px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            margin: 0 8px;
+            font-weight: 500;
+            transition: 0.2s;
+        }
+
+        .btn-reset {
+            background-color: #e53e3e;
+            color: white;
+        }
+
+        .btn-reset:hover {
+            background-color: #c53030;
+        }
+
+        .btn-simpan {
+            background-color: #3182ce;
+            color: white;
+        }
+
+        .btn-simpan:hover {
+            background-color: #2b6cb0;
+        }
+
+        .catatan {
+            margin-top: 20px;
+            padding: 12px;
+            background-color: #f0fff4;
+            border-left: 4px solid #48bb78;
+            border-radius: 6px;
+            font-size: 13px;
+            color: #22543d;
+        }
+
+        @media (max-width: 768px) {
+            .container { padding: 15px; }
+            th, td { padding: 8px 4px; font-size: 12px; }
+            .check-box { width: 24px; height: 24px; }
+            .check-box.checked::after { font-size: 15px; }
+            .input-paraf { width: 85%; }
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h1>✅ CHECKLIST PEMERIKSAAN HARIAN AREA BAR</h1>
+    <div class="tanggal" id="tanggalHariIni"></div>
+
+    <table>
+        <thead>
+            <tr>
+                <th>No</th>
+                <th>Item Pemeriksaan</th>
+                <th colspan="2">Pagi & Paraf</th>
+                <th colspan="2">Siang & Paraf</th>
+                <th colspan="2">Malam & Paraf</th>
+                <th>Keterangan</th>
+            </tr>
+        </thead>
+        <tbody id="badanTabel">
+            <!-- Isi dibuat otomatis -->
+        </tbody>
+    </table>
+
+    <div class="tombol-area">
+        <button class="btn-simpan" onclick="simpanData()">💾 Simpan Data</button>
+        <button class="btn-reset" onclick="konfirmasiReset()">🔄 Reset Hari Ini</button>
+    </div>
+
+    <div class="catatan">
+        <strong>Petunjuk Penggunaan:</strong><br>
+        1. Cukup <b>klik/ketuk kotak persegi</b> di kolom shift untuk menandai sudah selesai ✔<br>
+        2. Isi nama paraf pada kolom yang tersedia<br>
+        3. Data tersimpan otomatis di perangkat Anda, tidak hilang meskipun ditutup<br>
+        4. Gunakan tombol <b>Reset</b> untuk memulai catatan hari berikutnya
+    </div>
+</div>
+
+<script>
+// Daftar item pemeriksaan
+const daftarItem = [
+    "Rak, kaca, dan permukaan bar bersih",
+    "Peralatan bersih, kering, dan tersusun rapi",
+    "Bahan baku tertutup dan berlabel",
+    "FIFO diterapkan pada bahan baku",
+    "Tidak terdapat barang pribadi/non-F&B",
+    "Counter dan area kerja bebas dari tumpahan",
+    "Peralatan listrik bersih dan aman",
+    "Tempat sampah bersih dan ada plastik",
+    "Lantai area bar bersih dan tidak licin",
+    "Area bar secara keseluruhan rapi dan siap digunakan"
+];
+
+// Tampilkan tanggal hari ini
+const hariIni = new Date();
+const formatTanggal = hariIni.toLocaleDateString('id-ID', {
+    weekday: 'long',
+    year: 'numeric',
+    month: 'long',
+    day: 'numeric'
+});
+document.getElementById('tanggalHariIni').textContent = "📅 Tanggal: " + formatTanggal;
+
+// Buat baris tabel
+const badanTabel = document.getElementById('badanTabel');
+daftarItem.forEach((item, nomor) => {
+    const baris = document.createElement('tr');
+    baris.innerHTML = `
+        <td>${nomor + 1}</td>
+        <td style="text-align:left;">${item}</td>
+        <td><div class="check-box" data-shift="pagi" data-no="${nomor}"></div></td>
+        <td><input type="text" class="input-paraf" placeholder="Paraf" data-paraf="pagi" data-no="${nomor}"></td>
+        <td><div class="check-box" data-shift="siang" data-no="${nomor}"></div></td>
+        <td><input type="text" class="input-paraf" placeholder="Paraf" data-paraf="siang" data-no="${nomor}"></td>
+        <td><div class="check-box" data-shift="malam" data-no="${nomor}"></div></td>
+        <td><input type="text" class="input-paraf" placeholder="Paraf" data-paraf="malam" data-no="${nomor}"></td>
+        <td><input type="text" class="keterangan" placeholder="-" data-ket="${nomor}"></td>
+    `;
+    badanTabel.appendChild(baris);
+});
+
+// Centang kotak
+document.addEventListener('click', function(e) {
+    if (e.target.classList.contains('check-box')) {
+        e.target.classList.toggle('checked');
+        simpanData();
+    }
+});
+
+// Simpan data ke penyimpanan lokal
+function simpanData() {
+    const data = {
+        tanggal: formatTanggal,
+        pagi: [], siang: [], malam: [],
+        parafPagi: [], parafSiang: [], parafMalam: [],
+        keterangan: []
+    };
+
+    daftarItem.forEach((_, i) => {
+        data.pagi[i] = document.querySelector(`[data-shift="pagi"][data-no="${i}"]`).classList.contains('checked');
+        data.siang[i] = document.querySelector(`[data-shift="siang"][data-no="${i}"]`).classList.contains('checked');
+        data.malam[i] = document.querySelector(`[data-shift="malam"][data-no="${i}"]`).classList.contains('checked');
+        data.parafPagi[i] = document.querySelector(`[data-paraf="pagi"][data-no="${i}"]`).value;
+        data.parafSiang[i] = document.querySelector(`[data-paraf="siang"][data-no="${i}"]`).value;
+        data.parafMalam[i] = document.querySelector(`[data-paraf="malam"][data-no="${i}"]`).value;
+        data.keterangan[i] = document.querySelector(`[data-ket="${i}"]`).value;
+    });
+
+    localStorage.setItem('checklistSOP', JSON.stringify(data));
+}
+
+// Muat data tersimpan
+function muatData() {
+    const tersimpan = localStorage.getItem('checklistSOP');
+    if (!tersimpan) return;
+    const data = JSON.parse(tersimpan);
+
+    daftarItem.forEach((_, i) => {
+        if (data.pagi?.[i]) document.querySelector(`[data-shift="pagi"][data-no="${i}"]`).classList.add('checked');
+        if (data.siang?.[i]) document.querySelector(`[data-shift="siang"][data-no="${i}"]`).classList.add('checked');
+        if (data.malam?.[i]) document.querySelector(`[data-shift="malam"][data-no="${i}"]`).classList.add('checked');
+        if (data.parafPagi?.[i]) document.querySelector(`[data-paraf="pagi"][data-no="${i}"]`).value = data.parafPagi[i];
+        if (data.parafSiang?.[i]) document.querySelector(`[data-paraf="siang"][data-no="${i}"]`).value = data.parafSiang[i];
+        if (data.parafMalam?.[i]) document.querySelector(`[data-paraf="malam"][data-no="${i}"]`).value = data.parafMalam[i];
+        if (data.keterangan?.[i]) document.querySelector(`[data-ket="${i}"]`).value = data.keterangan[i];
+    });
+}
+
+// Simpan otomatis saat mengetik
+document.addEventListener('input', function(e) {
+    if (e.target.classList.contains('input-paraf') || e.target.classList.contains('keterangan')) {
+        simpanData();
+    }
+});
+
+// Reset data
+function konfirmasiReset() {
+    if (confirm("⚠️ Yakin ingin mengosongkan semua catatan hari ini?")) {
+        localStorage.removeItem('checklistSOP');
+        location.reload();
+    }
+}
+
+// Jalankan saat halaman dibuka
+muatData();
+</script>
+</body>
+</html>
